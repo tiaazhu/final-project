@@ -1,0 +1,108 @@
+import random
+import time
+
+
+class Node:
+    def __init__(self, key=None, next=None):
+        self.key = key
+        self.next = next
+
+
+class Heap2:
+    def __init__(self):
+        self.tail = self.head = Node()
+
+    # O(n) for Q1
+    def get_index(self, idx):
+        p = self.head.next
+        for _ in range(idx):
+            if p is None:
+                break
+            p = p.next
+        return p
+
+    # O(n) Q1
+    def parent(self, i):
+        p = (i - 1) // 2
+        return self.get_index(p)
+
+    # O(n) Q1
+    def left_child(self, i):
+        p = i * 2 + 1
+        return self.get_index(p)
+
+    # O(n) Q1
+    def right_child(self, i):
+        p = i * 2 + 2
+        return self.get_index(p)
+
+    # O(n) Q2
+    def insert(self, key):
+        p = self.head
+        while p.next is not None and p.next.key < key:
+            p = p.next
+        p.next = Node(key, p.next)
+
+    # O(1) Q2
+    def delMin(self):
+        node = self.head.next
+        self.head.next = node.next
+        return node.key
+
+# Q4
+def base_test(heap):
+    arr = []
+    size = 10000
+    successful = True
+    for i in range(size):
+        r = random.randint(0, size)
+        arr.append(r)
+        heap.insert(r)
+
+    for i in range(size):
+        expect = min(arr)
+        if expect != heap.delMin():
+            successful = False
+            break
+
+        arr.remove(expect)
+
+    return successful
+
+# Q4
+def performance_test(heap, size):
+    arr = []
+    for i in range(size):
+        r = random.randint(0, size)
+        arr.append(r)
+
+    start = time.time()
+
+    for i in range(size):
+        # if i % 1000==0:
+        #     print(i)
+        heap.insert(arr[i])
+
+    temp = []
+    for i in range(size):
+        temp.append(heap.delMin())
+
+    end = time.time()
+
+    print("size: %5d time: %.5f" % (size, end - start))
+
+    assert sorted(temp) == sorted(arr)
+
+
+if __name__ == "__main__":
+    heap = Heap2()
+    print("base test")
+    if base_test(heap):
+        print("test successful")
+    else:
+        print("test failed")
+
+    test_size = [100, 1000, 2000, 5000, 10000, 20000, 30000, 40000, 50000]
+
+    for size in test_size:
+        performance_test(heap, size)
